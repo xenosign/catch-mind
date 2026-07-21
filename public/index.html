@@ -20,34 +20,62 @@
     <header class="topbar">
       <div class="topbar-left">
         <span id="player-count">0명 접속</span>
+        <span id="drawer-info">대기 중...</span>
+        <button type="button" id="start-btn" class="hidden">게임 시작</button>
       </div>
       <div class="topbar-center">
-        <span id="drawer-info">대기 중...</span>
-        <span id="word-hint"></span>
-      </div>
-      <div class="topbar-right">
+        <span class="word-box">
+          <span class="word-label">문제:</span>
+          <span id="word-hint"></span>
+        </span>
         <span id="timer"></span>
       </div>
+      <div class="topbar-right"></div>
     </header>
 
     <main class="main">
       <section class="canvas-area">
         <div id="toolbar" class="toolbar hidden">
           <div class="colors">
+            <!-- 무채색 -->
             <button type="button" class="color-btn" data-color="#000000" style="background:#000000"></button>
-            <button type="button" class="color-btn" data-color="#ff0000" style="background:#ff0000"></button>
-            <button type="button" class="color-btn" data-color="#ff9900" style="background:#ff9900"></button>
-            <button type="button" class="color-btn" data-color="#ffe600" style="background:#ffe600"></button>
-            <button type="button" class="color-btn" data-color="#22c55e" style="background:#22c55e"></button>
-            <button type="button" class="color-btn" data-color="#0ea5e9" style="background:#0ea5e9"></button>
-            <button type="button" class="color-btn" data-color="#7c3aed" style="background:#7c3aed"></button>
+            <button type="button" class="color-btn" data-color="#4b5563" style="background:#4b5563"></button>
+            <button type="button" class="color-btn" data-color="#9ca3af" style="background:#9ca3af"></button>
             <button type="button" class="color-btn" data-color="#ffffff" style="background:#ffffff"></button>
+            <!-- 빨강/분홍 -->
+            <button type="button" class="color-btn" data-color="#7f1d1d" style="background:#7f1d1d"></button>
+            <button type="button" class="color-btn" data-color="#ef4444" style="background:#ef4444"></button>
+            <button type="button" class="color-btn" data-color="#f87171" style="background:#f87171"></button>
+            <button type="button" class="color-btn" data-color="#ec4899" style="background:#ec4899"></button>
+            <!-- 주황/갈색 -->
+            <button type="button" class="color-btn" data-color="#7c2d12" style="background:#7c2d12"></button>
+            <button type="button" class="color-btn" data-color="#ea580c" style="background:#ea580c"></button>
+            <button type="button" class="color-btn" data-color="#fb923c" style="background:#fb923c"></button>
+            <!-- 노랑 -->
+            <button type="button" class="color-btn" data-color="#ca8a04" style="background:#ca8a04"></button>
+            <button type="button" class="color-btn" data-color="#facc15" style="background:#facc15"></button>
+            <!-- 초록 -->
+            <button type="button" class="color-btn" data-color="#14532d" style="background:#14532d"></button>
+            <button type="button" class="color-btn" data-color="#16a34a" style="background:#16a34a"></button>
+            <button type="button" class="color-btn" data-color="#4ade80" style="background:#4ade80"></button>
+            <button type="button" class="color-btn" data-color="#84cc16" style="background:#84cc16"></button>
+            <!-- 청록/하늘 -->
+            <button type="button" class="color-btn" data-color="#0f766e" style="background:#0f766e"></button>
+            <button type="button" class="color-btn" data-color="#06b6d4" style="background:#06b6d4"></button>
+            <button type="button" class="color-btn" data-color="#38bdf8" style="background:#38bdf8"></button>
+            <!-- 파랑/남색 -->
+            <button type="button" class="color-btn" data-color="#1e3a8a" style="background:#1e3a8a"></button>
+            <button type="button" class="color-btn" data-color="#2563eb" style="background:#2563eb"></button>
+            <!-- 보라/자주 -->
+            <button type="button" class="color-btn" data-color="#7c3aed" style="background:#7c3aed"></button>
+            <button type="button" class="color-btn" data-color="#d946ef" style="background:#d946ef"></button>
           </div>
           <div class="sizes">
             <button type="button" class="size-btn" data-size="2">얇게</button>
             <button type="button" class="size-btn" data-size="6">보통</button>
             <button type="button" class="size-btn" data-size="14">굵게</button>
           </div>
+          <button type="button" id="skip-btn">패스</button>
           <button type="button" id="clear-btn">전체 지우기</button>
         </div>
         <canvas id="canvas" width="800" height="600"></canvas>

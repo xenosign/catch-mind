@@ -13,6 +13,8 @@ const timerEl = document.getElementById("timer");
 
 const toolbarEl = document.getElementById("toolbar");
 const clearBtn = document.getElementById("clear-btn");
+const skipBtn = document.getElementById("skip-btn");
+const startBtn = document.getElementById("start-btn");
 const colorButtons = Array.from(document.querySelectorAll(".color-btn"));
 const sizeButtons = Array.from(document.querySelectorAll(".size-btn"));
 
@@ -28,28 +30,74 @@ const guessInput = document.getElementById("guess-input");
 
 // ---- 상태 ----
 let myId = null;
+let isHost = false;
+let gameStarted = false;
+let playerCount = 0;
 let currentDrawerId = null;
 let isDrawer = false;
 let currentColor = "#000000";
 let currentSize = 6;
 let timerInterval = null;
 
+// ---- 효과음 ----
+let audioCtx = null;
+
+function ensureAudioCtx() {
+  if (!audioCtx) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioCtx();
+  }
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone(freq, duration, delay = 0, gainValue = 0.2) {
+  const ctxA = ensureAudioCtx();
+  const osc = ctxA.createOscillator();
+  const gain = ctxA.createGain();
+  osc.type = "sine";
+  osc.frequency.value = freq;
+  osc.connect(gain);
+  gain.connect(ctxA.destination);
+
+  const startTime = ctxA.currentTime + delay;
+  gain.gain.setValueAtTime(gainValue, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+  osc.start(startTime);
+  osc.stop(startTime + duration);
+}
+
+function playNewWordSound() {
+  playTone(440, 0.12);
+  playTone(660, 0.15, 0.12);
+}
+
+function playCorrectSound() {
+  playTone(523.25, 0.12);
+  playTone(659.25, 0.12, 0.12);
+  playTone(783.99, 0.22, 0.24);
+}
+
 // ---- 입장 ----
 joinForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const nickname = nicknameInput.value.trim();
   if (!nickname) return;
+  ensureAudioCtx();
   socket.emit("join", { nickname });
   joinOverlay.classList.add("hidden");
   gameEl.classList.remove("hidden");
 });
 
-socket.on("joined", ({ id }) => {
+socket.on("joined", ({ id, isHost: hostFlag }) => {
   myId = id;
+  isHost = !!hostFlag;
+  updateWaitingUI();
 });
 
 // ---- 참가자 목록 ----
 socket.on("player-list", (players) => {
+  playerCount = players.length;
   playerCountEl.textContent = `${players.length}명 접속`;
   sidebarCountEl.textContent = players.length;
   playerListEl.innerHTML = "";
@@ -57,28 +105,74 @@ socket.on("player-list", (players) => {
     const li = document.createElement("li");
     if (p.id === currentDrawerId) li.classList.add("drawer");
     const nameSpan = document.createElement("span");
-    nameSpan.textContent = p.id === currentDrawerId ? `🖊 ${p.nickname}` : p.nickname;
+    const prefix = `${p.isHost ? "👑 " : ""}${p.id === currentDrawerId ? "🖊 " : ""}`;
+    nameSpan.textContent = `${prefix}${p.nickname}`;
     const scoreSpan = document.createElement("span");
     scoreSpan.textContent = p.score;
     li.appendChild(nameSpan);
     li.appendChild(scoreSpan);
     playerListEl.appendChild(li);
   });
+  updateWaitingUI();
+});
+
+// ---- 게임 시작 대기 ----
+const MIN_PLAYERS = 2;
+
+function updateWaitingUI() {
+  if (gameStarted || !isHost) {
+    startBtn.classList.add("hidden");
+  } else {
+    startBtn.classList.remove("hidden");
+    startBtn.disabled = playerCount < MIN_PLAYERS;
+  }
+
+  if (gameStarted) return;
+
+  if (isHost) {
+    drawerInfoEl.textContent =
+      playerCount >= MIN_PLAYERS
+        ? "게임 시작 버튼을 눌러주세요"
+        : `참가자를 기다리는 중... (최소 ${MIN_PLAYERS}명)`;
+  } else {
+    drawerInfoEl.textContent = "방장이 게임을 시작하기를 기다리는 중...";
+  }
+}
+
+startBtn.addEventListener("click", () => {
+  if (startBtn.disabled) return;
+  socket.emit("start-game");
+});
+
+socket.on("game-reset", () => {
+  gameStarted = false;
+  currentDrawerId = null;
+  isDrawer = false;
+  wordHintEl.textContent = "";
+  timerEl.textContent = "";
+  toolbarEl.classList.add("hidden");
+  canvas.style.pointerEvents = "none";
+  guessInput.disabled = true;
+  stopTimer();
+  updateWaitingUI();
 });
 
 // ---- 라운드 진행 ----
 socket.on("round-start", ({ drawerId, drawerName, wordLength, endsAt }) => {
+  gameStarted = true;
+  startBtn.classList.add("hidden");
   currentDrawerId = drawerId;
   isDrawer = drawerId === myId;
 
   drawerInfoEl.textContent = `${drawerName}님이 그리는 중`;
-  wordHintEl.textContent = "_ ".repeat(wordLength).trim();
+  wordHintEl.textContent = "●".repeat(wordLength);
 
   toolbarEl.classList.toggle("hidden", !isDrawer);
   canvas.style.pointerEvents = isDrawer ? "auto" : "none";
   guessInput.disabled = isDrawer;
   guessInput.placeholder = isDrawer ? "그림을 그리는 중입니다" : "정답을 입력하세요";
 
+  playNewWordSound();
   startTimer(endsAt);
 });
 
@@ -97,6 +191,8 @@ socket.on("round-end", ({ word, reason }) => {
   let reasonText = "";
   if (reason === "timeout") reasonText = "시간 종료!";
   else if (reason === "drawer-left") reasonText = "출제자가 나갔습니다.";
+  else if (reason === "skip") reasonText = "출제자가 패스했습니다.";
+  else if (reason === "guessed") playCorrectSound();
   appendChat({ system: `정답은 "${word}" 였습니다. ${reasonText}` });
 });
 
@@ -255,4 +351,9 @@ clearBtn.addEventListener("click", () => {
   if (!isDrawer) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   socket.emit("clear");
+});
+
+skipBtn.addEventListener("click", () => {
+  if (!isDrawer) return;
+  socket.emit("skip");
 });
