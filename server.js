@@ -172,8 +172,6 @@ io.on('connection', (socket) => {
 
     if (isCorrect) {
       player.score += 1;
-      const drawer = room.players.get(room.currentDrawerId);
-      if (drawer) drawer.score += 1;
 
       io.emit('chat', { system: `${player.nickname}님 정답!` });
       broadcastPlayerList();
