@@ -1,0 +1,290 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 닉네임 입력 오버레이 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.join-box {
+  background: #fff;
+  padding: 32px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.join-box h1 {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 24px;
+}
+
+.join-box input {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.join-box button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #6366f1;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.join-box button:hover {
+  background: #4f46e5;
+}
+
+/* 게임 레이아웃 */
+.game {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #1e293b;
+  color: #fff;
+  font-size: 14px;
+}
+
+.topbar-center {
+  display: flex;
+  gap: 12px;
+  font-weight: 600;
+}
+
+#word-hint {
+  letter-spacing: 4px;
+  font-family: monospace;
+}
+
+#timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.canvas-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.colors {
+  display: flex;
+  gap: 6px;
+}
+
+.color-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-btn.selected {
+  border-color: #1e293b;
+}
+
+.sizes {
+  display: flex;
+  gap: 6px;
+}
+
+.size-btn {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.size-btn.selected {
+  background: #6366f1;
+  color: #fff;
+  border-color: #6366f1;
+}
+
+#clear-btn {
+  margin-left: auto;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+#clear-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+#canvas {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.sidebar {
+  width: 220px;
+  background: #fff;
+  border-left: 1px solid #e2e8f0;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+
+.player-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.player-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 14px;
+}
+
+.player-list li.drawer {
+  background: #eef2ff;
+  font-weight: 700;
+}
+
+.chat-area {
+  height: 200px;
+  border-top: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chat-log .system {
+  color: #64748b;
+  font-style: italic;
+}
+
+.chat-log .correct {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.chat-log .nickname {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.guess-form {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.guess-form input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.guess-form button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #6366f1;
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .main {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+    max-height: 150px;
+  }
+}

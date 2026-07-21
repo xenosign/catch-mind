@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>캐치마인드</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 닉네임 입력 화면 -->
+  <div id="join-overlay" class="overlay">
+    <form id="join-form" class="join-box">
+      <h1>캐치마인드</h1>
+      <input id="nickname-input" type="text" maxlength="20" placeholder="닉네임을 입력하세요" autocomplete="off" required />
+      <button type="submit">입장하기</button>
+    </form>
+  </div>
+
+  <div id="game" class="game hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span id="player-count">0명 접속</span>
+      </div>
+      <div class="topbar-center">
+        <span id="drawer-info">대기 중...</span>
+        <span id="word-hint"></span>
+      </div>
+      <div class="topbar-right">
+        <span id="timer"></span>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="canvas-area">
+        <div id="toolbar" class="toolbar hidden">
+          <div class="colors">
+            <button type="button" class="color-btn" data-color="#000000" style="background:#000000"></button>
+            <button type="button" class="color-btn" data-color="#ff0000" style="background:#ff0000"></button>
+            <button type="button" class="color-btn" data-color="#ff9900" style="background:#ff9900"></button>
+            <button type="button" class="color-btn" data-color="#ffe600" style="background:#ffe600"></button>
+            <button type="button" class="color-btn" data-color="#22c55e" style="background:#22c55e"></button>
+            <button type="button" class="color-btn" data-color="#0ea5e9" style="background:#0ea5e9"></button>
+            <button type="button" class="color-btn" data-color="#7c3aed" style="background:#7c3aed"></button>
+            <button type="button" class="color-btn" data-color="#ffffff" style="background:#ffffff"></button>
+          </div>
+          <div class="sizes">
+            <button type="button" class="size-btn" data-size="2">얇게</button>
+            <button type="button" class="size-btn" data-size="6">보통</button>
+            <button type="button" class="size-btn" data-size="14">굵게</button>
+          </div>
+          <button type="button" id="clear-btn">전체 지우기</button>
+        </div>
+        <canvas id="canvas" width="800" height="600"></canvas>
+      </section>
+
+      <aside class="sidebar">
+        <h2>참가자 (<span id="sidebar-count">0</span>)</h2>
+        <ol id="player-list" class="player-list"></ol>
+      </aside>
+    </main>
+
+    <footer class="chat-area">
+      <div id="chat-log" class="chat-log"></div>
+      <form id="guess-form" class="guess-form">
+        <input id="guess-input" type="text" placeholder="정답을 입력하세요" autocomplete="off" />
+        <button type="submit">전송</button>
+      </form>
+    </footer>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
