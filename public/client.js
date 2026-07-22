@@ -20,6 +20,7 @@ const sizeButtons = Array.from(document.querySelectorAll(".size-btn"));
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const correctOverlayEl = document.getElementById("correct-overlay");
 
 const sidebarCountEl = document.getElementById("sidebar-count");
 const playerListEl = document.getElementById("player-list");
@@ -159,6 +160,10 @@ socket.on("game-reset", () => {
 
 // ---- 라운드 진행 ----
 socket.on("round-start", ({ drawerId, drawerName, wordLength, endsAt }) => {
+  clearTimeout(correctOverlayTimer);
+  correctOverlayEl.classList.remove("show");
+  correctOverlayEl.classList.add("hidden");
+
   gameStarted = true;
   startBtn.classList.add("hidden");
   currentDrawerId = drawerId;
@@ -180,7 +185,7 @@ socket.on("word-for-drawer", ({ word }) => {
   if (isDrawer) wordHintEl.textContent = word;
 });
 
-socket.on("round-end", ({ word, reason }) => {
+socket.on("round-end", ({ word, reason, winnerName }) => {
   stopTimer();
   wordHintEl.textContent = word;
   drawerInfoEl.textContent = "다음 라운드 준비 중...";
@@ -192,9 +197,25 @@ socket.on("round-end", ({ word, reason }) => {
   if (reason === "timeout") reasonText = "시간 종료!";
   else if (reason === "drawer-left") reasonText = "출제자가 나갔습니다.";
   else if (reason === "skip") reasonText = "출제자가 패스했습니다.";
-  else if (reason === "guessed") playCorrectSound();
+  else if (reason === "guessed") {
+    playCorrectSound();
+    if (winnerName) showCorrectOverlay(`${winnerName}님 정답!`);
+  }
   appendChat({ system: `정답은 "${word}" 였습니다. ${reasonText}` });
 });
+
+let correctOverlayTimer = null;
+function showCorrectOverlay(text) {
+  correctOverlayEl.textContent = text;
+  correctOverlayEl.classList.remove("hidden");
+  requestAnimationFrame(() => correctOverlayEl.classList.add("show"));
+
+  clearTimeout(correctOverlayTimer);
+  correctOverlayTimer = setTimeout(() => {
+    correctOverlayEl.classList.remove("show");
+    setTimeout(() => correctOverlayEl.classList.add("hidden"), 200);
+  }, 2000);
+}
 
 function startTimer(endsAt) {
   stopTimer();

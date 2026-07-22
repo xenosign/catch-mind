@@ -37,38 +37,38 @@
       <section class="canvas-area">
         <div id="toolbar" class="toolbar hidden">
           <div class="colors">
-            <!-- 무채색 -->
+            <!-- 흑/백 -->
             <button type="button" class="color-btn" data-color="#000000" style="background:#000000"></button>
-            <button type="button" class="color-btn" data-color="#4b5563" style="background:#4b5563"></button>
-            <button type="button" class="color-btn" data-color="#9ca3af" style="background:#9ca3af"></button>
             <button type="button" class="color-btn" data-color="#ffffff" style="background:#ffffff"></button>
-            <!-- 빨강/분홍 -->
-            <button type="button" class="color-btn" data-color="#7f1d1d" style="background:#7f1d1d"></button>
-            <button type="button" class="color-btn" data-color="#ef4444" style="background:#ef4444"></button>
-            <button type="button" class="color-btn" data-color="#f87171" style="background:#f87171"></button>
-            <button type="button" class="color-btn" data-color="#ec4899" style="background:#ec4899"></button>
-            <!-- 주황/갈색 -->
-            <button type="button" class="color-btn" data-color="#7c2d12" style="background:#7c2d12"></button>
-            <button type="button" class="color-btn" data-color="#ea580c" style="background:#ea580c"></button>
-            <button type="button" class="color-btn" data-color="#fb923c" style="background:#fb923c"></button>
+            <!-- 빨강 -->
+            <button type="button" class="color-btn" data-color="#a60000" style="background:#a60000"></button>
+            <button type="button" class="color-btn" data-color="#ff0000" style="background:#ff0000"></button>
+            <button type="button" class="color-btn" data-color="#ff5959" style="background:#ff5959"></button>
+            <!-- 주황 -->
+            <button type="button" class="color-btn" data-color="#a66b00" style="background:#a66b00"></button>
+            <button type="button" class="color-btn" data-color="#ffa500" style="background:#ffa500"></button>
+            <button type="button" class="color-btn" data-color="#ffc559" style="background:#ffc559"></button>
             <!-- 노랑 -->
-            <button type="button" class="color-btn" data-color="#ca8a04" style="background:#ca8a04"></button>
-            <button type="button" class="color-btn" data-color="#facc15" style="background:#facc15"></button>
+            <button type="button" class="color-btn" data-color="#a6a600" style="background:#a6a600"></button>
+            <button type="button" class="color-btn" data-color="#ffff00" style="background:#ffff00"></button>
+            <button type="button" class="color-btn" data-color="#ffff59" style="background:#ffff59"></button>
             <!-- 초록 -->
-            <button type="button" class="color-btn" data-color="#14532d" style="background:#14532d"></button>
-            <button type="button" class="color-btn" data-color="#16a34a" style="background:#16a34a"></button>
-            <button type="button" class="color-btn" data-color="#4ade80" style="background:#4ade80"></button>
-            <button type="button" class="color-btn" data-color="#84cc16" style="background:#84cc16"></button>
-            <!-- 청록/하늘 -->
-            <button type="button" class="color-btn" data-color="#0f766e" style="background:#0f766e"></button>
-            <button type="button" class="color-btn" data-color="#06b6d4" style="background:#06b6d4"></button>
-            <button type="button" class="color-btn" data-color="#38bdf8" style="background:#38bdf8"></button>
-            <!-- 파랑/남색 -->
-            <button type="button" class="color-btn" data-color="#1e3a8a" style="background:#1e3a8a"></button>
-            <button type="button" class="color-btn" data-color="#2563eb" style="background:#2563eb"></button>
-            <!-- 보라/자주 -->
-            <button type="button" class="color-btn" data-color="#7c3aed" style="background:#7c3aed"></button>
-            <button type="button" class="color-btn" data-color="#d946ef" style="background:#d946ef"></button>
+            <button type="button" class="color-btn" data-color="#005300" style="background:#005300"></button>
+            <button type="button" class="color-btn" data-color="#008000" style="background:#008000"></button>
+            <button type="button" class="color-btn" data-color="#59ac59" style="background:#59ac59"></button>
+            <button type="button" class="color-btn" data-color="#bef264" style="background:#bef264"></button>
+            <!-- 파랑 -->
+            <button type="button" class="color-btn" data-color="#0000a6" style="background:#0000a6"></button>
+            <button type="button" class="color-btn" data-color="#0000ff" style="background:#0000ff"></button>
+            <button type="button" class="color-btn" data-color="#5959ff" style="background:#5959ff"></button>
+            <!-- 남색 -->
+            <button type="button" class="color-btn" data-color="#000053" style="background:#000053"></button>
+            <button type="button" class="color-btn" data-color="#000080" style="background:#000080"></button>
+            <button type="button" class="color-btn" data-color="#5959ac" style="background:#5959ac"></button>
+            <!-- 보라 -->
+            <button type="button" class="color-btn" data-color="#530053" style="background:#530053"></button>
+            <button type="button" class="color-btn" data-color="#800080" style="background:#800080"></button>
+            <button type="button" class="color-btn" data-color="#ac59ac" style="background:#ac59ac"></button>
           </div>
           <div class="sizes">
             <button type="button" class="size-btn" data-size="2">얇게</button>
@@ -78,7 +78,10 @@
           <button type="button" id="skip-btn">패스</button>
           <button type="button" id="clear-btn">전체 지우기</button>
         </div>
-        <canvas id="canvas" width="800" height="600"></canvas>
+        <div class="canvas-wrap">
+          <canvas id="canvas" width="800" height="600"></canvas>
+          <div id="correct-overlay" class="correct-overlay hidden"></div>
+        </div>
       </section>
 
       <aside class="sidebar">

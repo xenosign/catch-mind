@@ -85,7 +85,7 @@ function startRound() {
   room.roundTimer = setTimeout(() => endRound('timeout'), ROUND_DURATION_MS);
 }
 
-function endRound(reason) {
+function endRound(reason, winnerName) {
   if (!room.roundActive) return;
   room.roundActive = false;
   clearTimeout(room.roundTimer);
@@ -93,6 +93,7 @@ function endRound(reason) {
   io.emit('round-end', {
     word: room.currentWord,
     reason,
+    winnerName,
     scores: getScoreboard(),
   });
 
@@ -175,7 +176,7 @@ io.on('connection', (socket) => {
 
       io.emit('chat', { system: `${player.nickname}님 정답!` });
       broadcastPlayerList();
-      endRound('guessed');
+      endRound('guessed', player.nickname);
     } else {
       io.emit('chat', { nickname: player.nickname, text: trimmed });
     }
