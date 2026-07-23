@@ -8,6 +8,7 @@ const gameEl = document.getElementById("game");
 
 const playerCountEl = document.getElementById("player-count");
 const drawerInfoEl = document.getElementById("drawer-info");
+const wordLabelEl = document.getElementById("word-label");
 const wordHintEl = document.getElementById("word-hint");
 const timerEl = document.getElementById("timer");
 
@@ -149,6 +150,7 @@ socket.on("game-reset", () => {
   gameStarted = false;
   currentDrawerId = null;
   isDrawer = false;
+  wordLabelEl.textContent = "문제:";
   wordHintEl.textContent = "";
   timerEl.textContent = "";
   toolbarEl.classList.add("hidden");
@@ -159,7 +161,7 @@ socket.on("game-reset", () => {
 });
 
 // ---- 라운드 진행 ----
-socket.on("round-start", ({ drawerId, drawerName, wordLength, endsAt }) => {
+socket.on("round-start", ({ drawerId, drawerName, wordLength, endsAt, roundNumber }) => {
   clearTimeout(correctOverlayTimer);
   correctOverlayEl.classList.remove("show");
   correctOverlayEl.classList.add("hidden");
@@ -170,6 +172,7 @@ socket.on("round-start", ({ drawerId, drawerName, wordLength, endsAt }) => {
   isDrawer = drawerId === myId;
 
   drawerInfoEl.textContent = `${drawerName}님이 그리는 중`;
+  wordLabelEl.textContent = `문제 ${roundNumber}:`;
   wordHintEl.textContent = "●".repeat(wordLength);
 
   toolbarEl.classList.toggle("hidden", !isDrawer);

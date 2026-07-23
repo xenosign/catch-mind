@@ -29,6 +29,7 @@ const room = {
   roundTimer: null,
   nextRoundTimer: null,
   usedWords: new Set(), // 이번 사이클에서 이미 출제된 단어
+  roundNumber: 0,
 };
 
 function pickNextWord() {
@@ -83,6 +84,7 @@ function startRound() {
   room.roundActive = true;
   room.roundStartAt = Date.now();
   room.roundEndsAt = room.roundStartAt + ROUND_DURATION_MS;
+  room.roundNumber += 1;
 
   io.emit('clear');
   io.emit('round-start', {
@@ -90,6 +92,7 @@ function startRound() {
     drawerName: drawer.nickname,
     wordLength: room.currentWord.length,
     endsAt: room.roundEndsAt,
+    roundNumber: room.roundNumber,
   });
   io.to(drawerId).emit('word-for-drawer', { word: room.currentWord });
 
@@ -226,6 +229,7 @@ io.on('connection', (socket) => {
       room.currentWord = null;
       room.gameStarted = false;
       room.usedWords.clear();
+      room.roundNumber = 0;
       io.emit('game-reset');
     }
   });
