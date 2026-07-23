@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 단일 방 상태 (인메모리)
 const room = {
-  players: new Map(), // socketId -> { id, nickname, score }
+  players: new Map(), // socketId -> { id, nickname, score, token }
   order: [], // 참여(출제) 순서
   hostId: null, // 방장(가장 먼저 입장한 사람)
   gameStarted: false, // 방장이 게임을 시작했는지 여부
@@ -30,6 +30,7 @@ const room = {
   nextRoundTimer: null,
   usedWords: new Set(), // 이번 사이클에서 이미 출제된 단어
   roundNumber: 0,
+  scoreByToken: new Map(), // 재접속 시 점수 복원용 (token -> score)
 };
 
 function pickNextWord() {
@@ -119,7 +120,7 @@ function endRound(reason, winnerName) {
 }
 
 io.on('connection', (socket) => {
-  socket.on('join', ({ nickname } = {}) => {
+  socket.on('join', ({ nickname, token } = {}) => {
     if (room.players.has(socket.id)) return;
 
     const name =
@@ -127,7 +128,15 @@ io.on('connection', (socket) => {
         .trim()
         .slice(0, 20) || `player-${socket.id.slice(0, 4)}`;
 
-    room.players.set(socket.id, { id: socket.id, nickname: name, score: 0 });
+    const playerToken = String(token || '').slice(0, 100) || socket.id;
+    const restoredScore = room.scoreByToken.get(playerToken) || 0;
+
+    room.players.set(socket.id, {
+      id: socket.id,
+      nickname: name,
+      score: restoredScore,
+      token: playerToken,
+    });
     room.order.push(socket.id);
 
     if (!room.hostId) {
@@ -145,6 +154,7 @@ io.on('connection', (socket) => {
         drawerName: room.players.get(room.currentDrawerId)?.nickname,
         wordLength: room.currentWord.length,
         endsAt: room.roundEndsAt,
+        roundNumber: room.roundNumber,
       });
     } else {
       socket.emit('game-reset');
@@ -171,7 +181,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('guess', ({ text } = {}) => {
-    if (!room.roundActive) return;
     if (socket.id === room.currentDrawerId) return;
 
     const player = room.players.get(socket.id);
@@ -183,10 +192,13 @@ io.on('connection', (socket) => {
     if (!trimmed) return;
 
     const isCorrect =
-      !!room.currentWord && normalize(trimmed) === normalize(room.currentWord);
+      room.roundActive &&
+      !!room.currentWord &&
+      normalize(trimmed) === normalize(room.currentWord);
 
     if (isCorrect) {
       player.score += 1;
+      room.scoreByToken.set(player.token, player.score);
 
       io.emit('chat', { system: `${player.nickname}님 정답!` });
       broadcastPlayerList();
@@ -230,6 +242,8 @@ io.on('connection', (socket) => {
       room.gameStarted = false;
       room.usedWords.clear();
       room.roundNumber = 0;
+      // 재접속 시 점수를 복원해야 하므로, 방에 아무도 안 남았을 때만 완전히 초기화한다.
+      if (room.players.size === 0) room.scoreByToken.clear();
       io.emit('game-reset');
     }
   });

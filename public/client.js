@@ -1,10 +1,23 @@
 const socket = io();
 
+// 재접속 시 점수를 복원하기 위한 클라이언트 고정 토큰
+function getClientToken() {
+  const key = "catchmind-token";
+  let token = localStorage.getItem(key);
+  if (!token) {
+    token = (crypto.randomUUID && crypto.randomUUID()) || `${Date.now()}-${Math.random()}`;
+    localStorage.setItem(key, token);
+  }
+  return token;
+}
+const clientToken = getClientToken();
+
 // ---- DOM ----
 const joinOverlay = document.getElementById("join-overlay");
 const joinForm = document.getElementById("join-form");
 const nicknameInput = document.getElementById("nickname-input");
 const gameEl = document.getElementById("game");
+const reconnectOverlay = document.getElementById("reconnect-overlay");
 
 const playerCountEl = document.getElementById("player-count");
 const drawerInfoEl = document.getElementById("drawer-info");
@@ -40,6 +53,8 @@ let isDrawer = false;
 let currentColor = "#000000";
 let currentSize = 6;
 let timerInterval = null;
+let myNickname = "";
+let hasJoined = false;
 
 // ---- 효과음 ----
 let audioCtx = null;
@@ -86,9 +101,26 @@ joinForm.addEventListener("submit", (e) => {
   const nickname = nicknameInput.value.trim();
   if (!nickname) return;
   ensureAudioCtx();
-  socket.emit("join", { nickname });
+  myNickname = nickname;
+  hasJoined = true;
+  socket.emit("join", { nickname, token: clientToken });
   joinOverlay.classList.add("hidden");
   gameEl.classList.remove("hidden");
+});
+
+// 네트워크 순단 등으로 소켓이 끊겼다가 재연결되면 같은 닉네임/토큰으로 자동 재입장한다.
+// (재입장 전까지는 새 소켓으로 아무 이벤트도 못 받아 "튕긴 것처럼" 멈춰 보이던 문제)
+socket.on("disconnect", () => {
+  if (!hasJoined) return;
+  reconnectOverlay.classList.remove("hidden");
+  stopTimer();
+});
+
+socket.io.on("reconnect", () => {
+  reconnectOverlay.classList.add("hidden");
+  if (hasJoined && myNickname) {
+    socket.emit("join", { nickname: myNickname, token: clientToken });
+  }
 });
 
 socket.on("joined", ({ id, isHost: hostFlag }) => {
@@ -98,12 +130,11 @@ socket.on("joined", ({ id, isHost: hostFlag }) => {
 });
 
 // ---- 참가자 목록 ----
-socket.on("player-list", (players) => {
-  playerCount = players.length;
-  playerCountEl.textContent = `${players.length}명 접속`;
-  sidebarCountEl.textContent = players.length;
+let lastPlayers = [];
+
+function renderPlayerList() {
   playerListEl.innerHTML = "";
-  players.forEach((p) => {
+  lastPlayers.forEach((p) => {
     const li = document.createElement("li");
     if (p.id === currentDrawerId) li.classList.add("drawer");
     const nameSpan = document.createElement("span");
@@ -115,6 +146,14 @@ socket.on("player-list", (players) => {
     li.appendChild(scoreSpan);
     playerListEl.appendChild(li);
   });
+}
+
+socket.on("player-list", (players) => {
+  lastPlayers = players;
+  playerCount = players.length;
+  playerCountEl.textContent = `${players.length}명 접속`;
+  sidebarCountEl.textContent = players.length;
+  renderPlayerList();
   updateWaitingUI();
 });
 
@@ -150,6 +189,7 @@ socket.on("game-reset", () => {
   gameStarted = false;
   currentDrawerId = null;
   isDrawer = false;
+  renderPlayerList();
   wordLabelEl.textContent = "문제:";
   wordHintEl.textContent = "";
   timerEl.textContent = "";
@@ -170,6 +210,7 @@ socket.on("round-start", ({ drawerId, drawerName, wordLength, endsAt, roundNumbe
   startBtn.classList.add("hidden");
   currentDrawerId = drawerId;
   isDrawer = drawerId === myId;
+  renderPlayerList();
 
   drawerInfoEl.textContent = `${drawerName}님이 그리는 중`;
   wordLabelEl.textContent = `문제 ${roundNumber}:`;

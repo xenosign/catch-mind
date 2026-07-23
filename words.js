@@ -163,6 +163,8 @@ const WORDS = [
   '포크레인',
   '돈가스',
   '크라잉넛',
+  '너도밤나무',
+  '신토불이',
 ];
 
 module.exports = WORDS;
