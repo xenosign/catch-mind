@@ -200,6 +200,12 @@ io.on('connection', (socket) => {
       player.score += 1;
       room.scoreByToken.set(player.token, player.score);
 
+      const drawer = room.players.get(room.currentDrawerId);
+      if (drawer) {
+        drawer.score += 1;
+        room.scoreByToken.set(drawer.token, drawer.score);
+      }
+
       io.emit('chat', { system: `${player.nickname}님 정답!` });
       broadcastPlayerList();
       endRound('guessed', player.nickname);
