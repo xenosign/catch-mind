@@ -28,7 +28,18 @@ const room = {
   roundEndsAt: null,
   roundTimer: null,
   nextRoundTimer: null,
+  usedWords: new Set(), // 이번 사이클에서 이미 출제된 단어
 };
+
+function pickNextWord() {
+  if (room.usedWords.size >= WORDS.length) {
+    room.usedWords.clear();
+  }
+  const available = WORDS.filter((w) => !room.usedWords.has(w));
+  const word = available[Math.floor(Math.random() * available.length)];
+  room.usedWords.add(word);
+  return word;
+}
 
 function normalize(str) {
   return String(str).replace(/\s+/g, '').toLowerCase();
@@ -68,7 +79,7 @@ function startRound() {
   if (!drawer) return;
 
   room.currentDrawerId = drawerId;
-  room.currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+  room.currentWord = pickNextWord();
   room.roundActive = true;
   room.roundStartAt = Date.now();
   room.roundEndsAt = room.roundStartAt + ROUND_DURATION_MS;
@@ -214,6 +225,7 @@ io.on('connection', (socket) => {
       room.roundActive = false;
       room.currentWord = null;
       room.gameStarted = false;
+      room.usedWords.clear();
       io.emit('game-reset');
     }
   });
